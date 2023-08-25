@@ -1,0 +1,33 @@
+#gitignore file for npm
+node_modules
+npm-debug.log
+bower_components
+dist
+tmp
+*.tmp
+*.log
+*.bak
+*.swp
+*.out
+*.pid
+*.seed
+*.pid.lock
+*.seed.lock
+
+# Dependency directories
+jspm_packages
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
