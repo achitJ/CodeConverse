@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "ts-node-dev --respawn ./src/index.ts",
+    "dev-debug-ms": "set DEBUG=mediasoup:* & ts-node-dev --respawn ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
