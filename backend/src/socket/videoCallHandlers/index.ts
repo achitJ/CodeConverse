@@ -24,6 +24,8 @@ export default function registerVideoCallHandlers(socket: Socket, worker: Medias
         // create Router if it does not exist
         const router = await createRoom(roomName, socket.id, rooms, worker);
 
+        console.log({roomName});
+
         // console.log("router: ", router);
 
         peers[socket.id] = {

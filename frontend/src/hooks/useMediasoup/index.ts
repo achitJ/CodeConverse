@@ -3,8 +3,9 @@ import * as mediasoupClient from "mediasoup-client";
 import { Socket } from "socket.io-client";
 
 export default function useMediaSoup(socket: Socket | null, roomName: string) {
-    const localVideo = useRef<HTMLVideoElement>(null);
     const rtpCapabilities = useRef<mediasoupClient.types.RtpCapabilities | null>(null);
+    const localVideo = useRef<HTMLVideoElement | null>(null);
+    const userMediaStream = useRef<MediaStream | null>(null);
     const producerTransport = useRef<mediasoupClient.types.Transport | undefined>(undefined);
     const audioProducer = useRef<mediasoupClient.types.Producer | undefined>(undefined);
     const videoProducer = useRef<mediasoupClient.types.Producer | undefined>(undefined);
@@ -20,17 +21,21 @@ export default function useMediaSoup(socket: Socket | null, roomName: string) {
         // https://mediasoup.org/documentation/v3/mediasoup-client/api/#transport-produce
         // this action will trigger the 'connect' and 'produce' events above
 
-        try {
-            audioProducer.current = await producerTransport.current?.produce(audioParams.current);
-            videoProducer.current = await producerTransport.current?.produce(videoParams.current);
-        } catch (error) {
-            console.log(error);
-            console.log({
-                audioProducer: audioProducer.current,
-                videoProducer: videoProducer.current
-            })
-        }
+        const [
+            audioTrackObj,
+            videoTrackObj
+        ] = await Promise.allSettled([
+            producerTransport.current?.produce(audioParams.current),
+            producerTransport.current?.produce(videoParams.current)
+        ])
 
+        if(audioTrackObj.status === 'fulfilled') {
+            audioProducer.current = audioTrackObj.value;
+        } 
+        
+        if(videoTrackObj.status === 'fulfilled') {
+            videoProducer.current = videoTrackObj.value;
+        }
 
         audioProducer.current?.on('trackended', () => {
             console.log('audio track ended')
@@ -268,21 +273,24 @@ export default function useMediaSoup(socket: Socket | null, roomName: string) {
     useEffect(() => {
         socket?.on('connect', async () => {
             try {
+
                 const stream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: {
                         width: {
                             min: 640,
-                            max: 1920,
+                            max: 1280,
                         },
                         height: {
                             min: 400,
-                            max: 1080,
+                            max: 720,
                         }
                     }
                 });
 
-                console.log(stream)
+                console.log({stream});
+
+                userMediaStream.current = stream;
 
                 if (localVideo.current) {
                     localVideo.current.srcObject = stream;
@@ -299,7 +307,7 @@ export default function useMediaSoup(socket: Socket | null, roomName: string) {
                     ...videoParams.current
                 };
 
-                socket.emit('joinRoom', roomName, (
+                socket.emit('joinRoom', {roomName}, (
                     { rtpCapabilities: data }:
                         { rtpCapabilities: mediasoupClient.types.RtpCapabilities }
                 ) => {
@@ -323,7 +331,15 @@ export default function useMediaSoup(socket: Socket | null, roomName: string) {
                 return prev.filter(transportData => transportData.remoteProducerId !== remoteProducerId);
             })
         })
-    }, [socket]);
 
-    return { localVideo, consumerTransports };
+        return () => {
+            socket?.off('connect');
+            socket?.off('new-producer');
+            socket?.off('producer-closed');
+            socket?.off('disconnect');
+        }
+
+    }, [socket, userMediaStream]);
+
+    return { consumerTransports, userMediaStream, localVideo };
 }

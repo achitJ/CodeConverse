@@ -2,8 +2,8 @@ import * as mediasoup from 'mediasoup';
 
 export default async function createMediaSoupWorker() {
     const worker = await mediasoup.createWorker({
-        rtcMinPort: 2000,
-        rtcMaxPort: 2020,
+        // rtcMinPort: 2000,
+        // rtcMaxPort: 2020,
     });
     console.log(`worker pid ${worker.pid}`);
 
