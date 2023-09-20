@@ -11,7 +11,8 @@ export default function MeetRoom({ id }: { id: string }) {
     const socket = useContext(SocketContext);
     // const userMediaStream = useUserMediaStream();
     const { userMediaStream, localVideo, consumerTransports } = useMediaSoup(socket, id);
-    const [consumers, setConsumers] = useState<Record<string, ConsumerTransport[]>>({});    
+    const [consumers, setConsumers] = useState<Record<string, ConsumerTransport[]>>({});
+    const [newConsumer, setNewConsumer] = useState<ConsumerTransport[]>([]);
 
     useEffect(() => {
         //group by socketId and save as array
@@ -27,7 +28,11 @@ export default function MeetRoom({ id }: { id: string }) {
         console.log(grouped);
 
         setConsumers(grouped);
+
+        
     }, [consumerTransports]);
+
+
 
     return (
         <>
@@ -35,34 +40,34 @@ export default function MeetRoom({ id }: { id: string }) {
                 <LocalVideo localVideo={localVideo} />
                 {Object.keys(consumers).map((socketId) => (
                     <div key={socketId} className={style.videoBox}>
-                        
+
                         {consumers[socketId].map((consumer) => {
                             const { track } = consumer.consumer;
                             const mediaStream = new MediaStream([track]);
 
 
-                            if(track.kind === "video") {
+                            if (track.kind === "video") {
                                 return (
-                                    <video 
-                                        key={consumer.remoteProducerId} 
-                                        autoPlay 
+                                    <video
+                                        key={consumer.remoteProducerId}
+                                        autoPlay
                                         ref={(video) => {
-                                            if(video) {
-                                                console.log({mediaStream})
+                                            if (video) {
+                                                console.log({ mediaStream })
                                                 video.srcObject = mediaStream;
                                             }
                                         }}
                                         className={style.video}
                                     />
                                 )
-                            } else if(track.kind === "audio") {
+                            } else if (track.kind === "audio") {
                                 return (
-                                    <audio 
-                                        key={consumer.remoteProducerId} 
+                                    <audio
+                                        key={consumer.remoteProducerId}
                                         autoPlay
                                         ref={(audio) => {
-                                            if(audio) {
-                                                console.log({mediaStream})
+                                            if (audio) {
+                                                console.log({ mediaStream })
                                                 audio.srcObject = mediaStream;
                                             }
                                         }}
