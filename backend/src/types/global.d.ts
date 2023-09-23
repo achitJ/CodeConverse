@@ -1,12 +1,11 @@
 import {
-    Worker as MediasoupWorker,
     Router as MediasoupRouter,
     Transport as MediasoupTransport,
     Producer as MediasoupProducer,
     Consumer as MediasoupConsumer,
-    WebRtcTransport,
 } from 'mediasoup/node/lib/types';
 import { Socket } from "socket.io";
+import { Request, Response } from "express";
 
 declare global {
     interface Rooms {
@@ -51,6 +50,19 @@ declare global {
     }
 
     type TPC = Transport | Producer | Consumer;
+
+
+    interface RequestWithUser extends Request {
+        user?: {
+            id: string,
+        }
+    }
+
+    interface ResponseWithUser extends Response {
+        user?: {
+            id: string,
+        }
+    }
 }
 
 export { };
