@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import { Server } from 'http';
 import { 
     createExpressServer, 
     createMediaSoupWorker, 
-    createSocketServer 
+    createSocketServer,
+    connectToMongoDB
 } from './loaders';
 import { Namespace, Socket } from 'socket.io';
 import {
@@ -15,6 +17,7 @@ let worker: mediasoupWorker;
 let socketConnections: Namespace;
 
 (async () => {
+    await connectToMongoDB();
     serverListener = createExpressServer();
     worker = await createMediaSoupWorker();
     socketConnections = await createSocketServer(serverListener);

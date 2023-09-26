@@ -1,6 +1,5 @@
 import Mongoose, { Schema, Model } from "mongoose";
 import { hash } from "../../utils/hash";
-import { IUser } from "database-models";
 
 const UserSchema: Schema<IUser> = new Schema<IUser>({
     name: {

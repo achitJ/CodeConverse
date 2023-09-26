@@ -1,7 +1,6 @@
 import {
     Worker as MediasoupWorker,
     Router as MediasoupRouter,
-    Transport as MediasoupTransport,
     Producer as MediasoupProducer,
     Consumer as MediasoupConsumer,
     WebRtcTransport,

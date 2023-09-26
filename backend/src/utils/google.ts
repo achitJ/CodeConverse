@@ -4,7 +4,7 @@ import config from "../config";
 
 const { serverURI, googleClientID } = config;
 
-export function getGoogleAuthURL() {
+export function getGoogleAuthURL(state: string | undefined) {
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
     const options = {
         redirect_uri: `${serverURI}/auth/google`,
@@ -16,6 +16,7 @@ export function getGoogleAuthURL() {
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email",
         ].join(" "),
+        state,
     };
 
     return `${rootUrl}?${querystring.stringify(options)}`;
