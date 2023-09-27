@@ -1,5 +1,7 @@
 import UserModel from "../models/User";
 
+const a: keyof IUserDocument = 'password';
+
 class UserRepo {
     static async createNewUser({
         name,
@@ -10,7 +12,7 @@ class UserRepo {
     }: {
         name: string;
         email: string;
-        password: string;
+        password?: string;
         isAdmin?: boolean;
         isGoogleUser?: boolean;
     }): Promise<IUserDocument> {
@@ -21,6 +23,14 @@ class UserRepo {
             isAdmin,
             isGoogleUser
         });
+    }
+
+    static async setField<K extends keyof IUserDocument>(
+        user: IUserDocument, key: K, value: IUserDocument[K]
+    ) {
+        user[key] = value;
+        await user.save();
+        return user;
     }
 
     static async findByUserEmail(email: string): Promise<IUserDocument | null> {

@@ -1,6 +1,6 @@
 import { Router, Response } from "express";
 import { loginUser, registerUser } from "./controller";
-// import { auth } from "../../middleware/auth";
+import { auth } from "../../middlewares/auth"
 
 const router:Router = Router();
 
@@ -9,5 +9,12 @@ router.route('/login')
 
 router.route('/register')
     .post(registerUser);
+
+router.use(auth);
+
+router.route('/me')
+    .get((req:RequestWithUser, res:Response) => {
+        res.status(200).json({user: req.user});
+    });
 
 export default router;

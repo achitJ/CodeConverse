@@ -1,9 +1,8 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { MongooseError } from "mongoose";
-import jwt from "jsonwebtoken";
 import UserRepo from "../../db/repository/Users";
 import { compare } from "../../utils/hash";
 import config from "../../config";
+import { setCookie } from "../../utils";
 
 const { jwtSecret, authCookieName, authCookieExpiry } = config;
 
@@ -13,13 +12,14 @@ export const loginUser: RequestHandler = async (
     next: NextFunction
 ): Promise<void> => {
     const { email, password } = req.body;
+
+    if(!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+        res.status(400).json({message: 'Invalid credentials'});
+        return;
+    }
+
     try {
         const user = await UserRepo.findByUserEmail(email);
-        
-        if(!email || !password) {
-            res.status(400).json({message: 'Invalid credentials'});
-            return;
-        }
 
         if(!user) {
             res.status(404).json({message: 'User not found'});
@@ -36,13 +36,7 @@ export const loginUser: RequestHandler = async (
             return;
         }
 
-        const token = jwt.sign({id: user._id}, jwtSecret, {expiresIn: '1d'});
-
-        res.cookie(authCookieName, token, {
-            maxAge: authCookieExpiry,
-            httpOnly: true,
-            secure: true,
-        });
+        setCookie(user, res);
         
         res.status(200).json({message: 'Login successful', user});
     } catch (error) {
@@ -56,6 +50,12 @@ export const registerUser: RequestHandler = async (
     next: NextFunction
 ): Promise<void> => {
     const { name, email, password } = req.body;
+
+    if(!name || !email || !password || typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+        res.status(400).json({message: 'Invalid data'});
+        return;
+    }
+
     try {
 
         const tempUser = await UserRepo.findByUserEmail(email);
@@ -71,18 +71,7 @@ export const registerUser: RequestHandler = async (
             password
         });
 
-        if(!user) {
-            res.status(400).json({message: 'User not created'});
-            return;
-        }
-
-        const token = jwt.sign({id: user._id}, jwtSecret, {expiresIn: '1d'});
-
-        res.cookie(authCookieName, token, {
-            maxAge: authCookieExpiry,
-            httpOnly: true,
-            secure: true,
-        });
+        setCookie(user, res);
 
         res.status(201).json({message: 'User created', user});
     } catch (error) {

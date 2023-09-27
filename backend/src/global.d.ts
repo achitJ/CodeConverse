@@ -64,5 +64,3 @@ declare global {
         }
     }
 }
-
-export { };

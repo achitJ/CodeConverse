@@ -6,6 +6,7 @@ export default {
     mongoURI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/codeconverse',
     googleClientID: process.env.GOOGLE_CLIENT_ID || '',
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    redirectURI: "auth/google",
     clientURI: process.env.CLIENT_URI || 'http://localhost:3000',
     serverURI: process.env.SERVER_URI || 'http://localhost:8080',
     jwtSecret: process.env.JWT_SECRET || 'secret',

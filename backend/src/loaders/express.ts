@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import config from '../config';
 import ApiRouter from '../api';
-import GoogleAuth from '../api/google-auth';
+import GoogleAuth from '../api/user/google-auth';
 import errorHandler from '../middlewares/error-handler';
 
 const app = express();

@@ -2,9 +2,14 @@ import querystring from "querystring";
 import axios from "axios";
 import config from "../config";
 
-const { serverURI, googleClientID } = config;
+const {
+    serverURI,
+    googleClientID,
+    googleClientSecret,
+    redirectURI
+} = config;
 
-export function getGoogleAuthURL(state: string | undefined) {
+export function getGoogleAuthURL() {
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
     const options = {
         redirect_uri: `${serverURI}/auth/google`,
@@ -16,7 +21,6 @@ export function getGoogleAuthURL(state: string | undefined) {
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email",
         ].join(" "),
-        state,
     };
 
     return `${rootUrl}?${querystring.stringify(options)}`;
@@ -59,6 +63,39 @@ export function getTokens({
             console.error(`Failed to fetch auth tokens`);
             throw new Error(error.message);
         });
+}
+
+export async function getGoogleUser(code: string) {
+    const { id_token, access_token } = await getTokens({
+        code,
+        clientId: googleClientID,
+        clientSecret: googleClientSecret,
+        redirectUri: `${serverURI}/${redirectURI}`,
+    });
+
+    // Fetch the user's profile with the access token and bearer
+    const googleUser = await axios
+        .get(
+            `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${id_token}`,
+                },
+            }
+        )
+        .then((res) => res.data)
+        .catch((error) => {
+            console.error(`Failed to fetch user`);
+            throw new Error(error.message);
+        });
+
+    const { name, email } = googleUser;
+
+    if (!name || !email || typeof name !== "string" || typeof email !== "string") {
+        throw new Error("Invalid user data");
+    }
+
+    return { name, email };
 }
 
 

@@ -10,7 +10,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
         }
     }
 
-    res.status(500).send("Something broke!");
+    res.status(500).send({message: "Internal Server Error"});
 }
 
 export default errorHandler;
