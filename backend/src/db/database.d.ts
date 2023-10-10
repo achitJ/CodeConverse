@@ -7,3 +7,8 @@ type IUser = {
 }
 
 type IUserDocument = IUser & import("mongoose").Document;
+
+type IBlackListedToken = {
+    token: string;
+    createdAt: Date;
+}

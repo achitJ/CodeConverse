@@ -1,5 +1,5 @@
 import { Router, Response } from "express";
-import { loginUser, registerUser } from "./controller";
+import { getUserDetails, loginUser, logoutUser, registerUser } from "./controller";
 import { auth } from "../../middlewares/auth"
 
 const router:Router = Router();
@@ -12,9 +12,11 @@ router.route('/register')
 
 router.use(auth);
 
+router.route('/logout')
+    .delete(logoutUser)
+    
+
 router.route('/me')
-    .get((req:RequestWithUser, res:Response) => {
-        res.status(200).json({user: req.user});
-    });
+    .get(getUserDetails);
 
 export default router;

@@ -3,6 +3,7 @@ import UserRepo from "../../db/repository/Users";
 import { compare } from "../../utils/hash";
 import config from "../../config";
 import { setCookie } from "../../utils";
+import BlackListedTokenRepo from "../../db/repository/BlackListedToken";
 
 const { jwtSecret, authCookieName, authCookieExpiry } = config;
 
@@ -74,6 +75,52 @@ export const registerUser: RequestHandler = async (
         setCookie(user, res);
 
         res.status(201).json({message: 'User created', user});
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const logoutUser: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const token = req.cookies[authCookieName];
+
+        if(!token) {
+            res.status(401).json({message: 'Not authorized'});
+            return;
+        }
+
+        await BlackListedTokenRepo.createNewToken(token);
+
+        res.clearCookie(authCookieName);
+        res.status(200).json({message: 'Logout successful'});
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getUserDetails: RequestHandler = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    if(!req.user) {
+        res.status(401).json({message: 'Not authorized'});
+        return;
+    }
+
+    try {
+        const user = await UserRepo.findUserById(req.user.id);
+
+        if(!user) {
+            res.status(404).json({message: 'User not found'});
+            return;
+        }
+
+        res.status(200).json({user});
     } catch (error) {
         next(error);
     }

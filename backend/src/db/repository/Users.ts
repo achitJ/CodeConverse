@@ -1,7 +1,5 @@
 import UserModel from "../models/User";
 
-const a: keyof IUserDocument = 'password';
-
 class UserRepo {
     static async createNewUser({
         name,

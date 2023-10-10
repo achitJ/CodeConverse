@@ -1,10 +1,11 @@
 import { NextFunction, Response } from "express";
 import jwt from 'jsonwebtoken';
 import config from '../config';
+import BlackListedTokenRepo from "../db/repository/BlackListedToken";
 
 const { jwtSecret, authCookieName } = config;
 
-export const auth = (req:RequestWithUser, res:Response, next:NextFunction):void => {
+export const auth = async (req:RequestWithUser, res:Response, next:NextFunction) => {
     const token = req.cookies[authCookieName];
 
     if(!token) {
@@ -16,6 +17,12 @@ export const auth = (req:RequestWithUser, res:Response, next:NextFunction):void 
         const decoded = jwt.verify(token, jwtSecret);
         if(!decoded || typeof decoded === 'string') {
             res.status(401).json({ message: 'Token is not valid' });
+            return;
+        }
+
+        const blackListedToken = await BlackListedTokenRepo.findToken(token);
+        if(blackListedToken) {
+            res.status(401).json({ message: 'Token is expired' });
             return;
         }
 

@@ -8,7 +8,7 @@ const {
 } = config;
 
 export function setCookie(user: IUserDocument, res: Response) {
-    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: authCookieExpiry });
 
     res.cookie(authCookieName, token, {
         maxAge: authCookieExpiry,
