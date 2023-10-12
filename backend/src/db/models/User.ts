@@ -1,5 +1,6 @@
 import Mongoose, { Schema, Model } from "mongoose";
 import { hash } from "../../utils/hash";
+import { validateEmail } from "../../utils";
 
 const UserSchema: Schema<IUser> = new Schema<IUser>({
     name: {
@@ -17,6 +18,10 @@ const UserSchema: Schema<IUser> = new Schema<IUser>({
         maxlength: 255,
         unique: true,
         index: true,
+        validate: {
+            validator: validateEmail,
+            message: 'Invalid email'
+        }
     },
     password: {
         type: String,

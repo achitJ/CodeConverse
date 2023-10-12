@@ -16,3 +16,8 @@ export function setCookie(user: IUserDocument, res: Response) {
         secure: true,
     });
 }
+
+export function validateEmail(email: string) {
+    var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    return re.test(email);
+};
